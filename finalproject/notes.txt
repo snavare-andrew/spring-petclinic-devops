@@ -1,0 +1,185 @@
+Step-by-Step Implementation Plan
+Phase 1: Setup Project Structure
+Steps:
+
+Create the directory structure as shown above
+Navigate to your project root directory
+Create all folders: mkdir -p jenkins prometheus grafana/datasources grafana/dashboards
+
+Phase 2: Configure Jenkins
+Steps:
+
+Create jenkins/Dockerfile:
+
+Base image: jenkins/jenkins:lts
+Pre-install required plugins (Prometheus, Blue Ocean)
+Skip initial setup wizard
+
+
+Create jenkins/plugins.txt:
+
+List all required plugins (prometheus, blueocean, git, etc.)
+
+
+Purpose: Custom Jenkins with Prometheus plugin pre-installed
+
+Phase 3: Configure Prometheus
+Steps:
+
+Create prometheus/prometheus.yml:
+
+Configure scraping for Jenkins at jenkins:8080/prometheus
+Set scrape interval to 15s
+Add Prometheus self-monitoring
+
+
+Decide: Use base prom/prometheus image (no custom Dockerfile needed)
+
+Phase 4: Configure Grafana
+Steps:
+
+Create grafana/datasources/prometheus.yml:
+
+Pre-configure Prometheus as datasource
+Point to http://prometheus:9090
+Auto-provision on Grafana startup
+
+
+Create grafana/dashboards/dashboard.yml:
+
+Configure dashboard auto-provisioning
+
+
+Create/download grafana/dashboards/jenkins-dashboard.json:
+
+Use pre-built Jenkins dashboard or create custom one
+
+
+Decide: Use base grafana/grafana image with volume mounts
+
+Phase 5: Docker Compose Configuration
+Steps:
+
+Create docker-compose.yml with:
+
+Custom network definition
+Jenkins service with volume mounts
+Prometheus service with config mount
+Grafana service with datasource/dashboard mounts
+Proper port mappings (8080, 9090, 3000)
+Health checks for each service
+Dependency ordering (Jenkins → Prometheus → Grafana)
+
+
+
+Phase 6: Build and Deploy
+Steps:
+
+Run docker-compose build to build custom images
+Run docker-compose up -d to start all services
+Wait for services to initialize (30-60 seconds)
+Verify each service is running: docker-compose ps
+
+Phase 7: Configure Jenkins
+Steps:
+
+Access Jenkins at http://localhost:8080
+Get initial admin password: docker-compose logs jenkins | grep -A 5 password
+Complete initial setup (or skip if automated)
+Verify Prometheus plugin is installed
+Navigate to Manage Jenkins → Configure System
+Find Prometheus section, ensure it's enabled
+Test metrics endpoint: curl http://localhost:8080/prometheus
+
+Phase 8: Verify Prometheus
+Steps:
+
+Access Prometheus at http://localhost:9090
+Go to Status → Targets
+Verify Jenkins target shows as "UP" (green)
+Go to Graph tab
+Test query: jenkins_up (should return 1)
+Test query: jenkins_node_builds_count_total
+
+Phase 9: Verify Grafana
+Steps:
+
+Access Grafana at http://localhost:3000
+Login with admin/admin (change password)
+Go to Configuration → Data Sources
+Verify Prometheus datasource is pre-configured
+Test connection (should show green checkmark)
+Go to Dashboards → Browse
+Verify Jenkins dashboard is available
+Open dashboard and check if data is displayed
+
+Phase 10: End-to-End Testing
+Steps:
+
+Create a simple test job in Jenkins:
+
+New Item → Pipeline
+Simple pipeline script (echo "Hello World")
+
+
+Run the job multiple times
+Watch Prometheus metrics update:
+
+Query: rate(jenkins_builds_success_total[5m])
+
+
+Watch Grafana dashboard update in real-time
+Take screenshots of all key screens
+
+Phase 11: Testing Pipeline Integration
+Steps:
+
+Fork spring-petclinic repository
+Create Jenkins pipeline for spring-petclinic
+Configure pipeline with stages (checkout, build, test)
+Trigger build
+Monitor metrics in Prometheus
+Observe dashboard updates in Grafana
+Verify build success/failure metrics
+
+Phase 12: Documentation
+Steps:
+
+Create README.md with:
+
+Prerequisites
+Quick start commands
+Service URLs and credentials
+Troubleshooting tips
+
+
+Document each configuration file
+Create architecture diagram
+List all screenshots needed
+
+Detailed Docker Compose Approach
+Advantages of your approach:
+
+✅ Single command to start everything: docker-compose up
+✅ Automatic network creation
+✅ Easy to tear down: docker-compose down
+✅ Volume management for persistence
+✅ Can pre-configure Grafana datasources
+✅ Environment variables management
+✅ Service dependencies handled
+✅ Reproducible across environments
+
+Testing Checklist
+
+ All containers start successfully
+ Jenkins UI accessible
+ Jenkins Prometheus endpoint responds
+ Prometheus targets page shows Jenkins as UP
+ Prometheus can query Jenkins metrics
+ Grafana UI accessible
+ Grafana datasource configured automatically
+ Grafana dashboard loads with data
+ Jenkins build triggers metric updates
+ Dashboard updates in real-time
+ All services survive restart
+ Screenshots captured
