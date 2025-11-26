@@ -1,0 +1,60 @@
+jenkins:
+  systemMessage: "Spring Petclinic - configured by JCasC\n"
+  numExecutors: 1
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "jenkins_admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"
+  sonarGlobalConfiguration:
+    installations:
+      - name: "sonarqube"
+        serverUrl: "http://sonarqube:9000"
+        credentialsId: "sonar-token"
+
+credentials:
+  system:
+    domainCredentials:
+      - domain:
+          name: "global"
+          description: "Global creds"
+        credentials:
+          - string:
+              scope: GLOBAL
+              id: "sonar-token"
+              description: "SonarQube token"
+              secret: "${SONAR_TOKEN}"
+          - string:
+              scope: GLOBAL
+              id: "zap-api-key"
+              description: "OWASP ZAP API key"
+              secret: "${ZAP_API_KEY}"
+
+jobs:
+  - script: >
+      pipelineJob('spring-petclinic-pipeline') {
+        description('Jenkins pipeline for Spring Petclinic')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/snavare-andrew/spring-petclinic-devops.git')
+                }
+                branches('*/main')
+              }
+            }
+            scriptPath('infra/Jenkinsfile')
+          }
+        }
+      }
