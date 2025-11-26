@@ -1,16 +1,32 @@
 Vagrant.configure("2") do |config|
-
   config.vm.box = "hashicorp-education/ubuntu-24-04"
 
-  config.vm.network "private_network", ip: "192.168.56.200"
+  # Production VM
+  config.vm.define "petclinic-prod" do |prod|
+    prod.vm.hostname = "petclinic-prod"
+    prod.vm.network "private_network", ip: "192.168.56.200"
 
-  config.vm.provider "virtualbox" do |vb|
-    vb.memory = "2048"
-    vb.cpus   = 2
+    prod.vm.provider "virtualbox" do |vb|
+      vb.memory = "2048"
+      vb.cpus = 2
+    end
+
+    config.vm.provision "shell", path: "prod_vm_provision.sh"
+    config.ssh.insert_key = true
   end
 
-  config.vm.provision "shell", path: "prod_vm_provision.sh"
+  # Staging VM
+  config.vm.define "petclinic-stage" do |stage|
+    stage.vm.hostname = "petclinic-stage"
+    stage.vm.network "private_network", ip: "192.168.56.201"
 
-  config.ssh.insert_key = true # Create unique SSH key instead of default
+    stage.vm.provider "virtualbox" do |vb|
+      vb.memory = "2048"
+      vb.cpus = 2
+    end
 
+    config.vm.provision "shell", path: "prod_vm_provision.sh"
+    config.ssh.insert_key = true
+  end
 end
+
