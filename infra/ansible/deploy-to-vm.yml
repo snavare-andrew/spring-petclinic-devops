@@ -1,0 +1,65 @@
+- hosts: all
+  become: yes
+  vars:
+    app_user: petclinic
+    app_dir: /opt/petclinic
+    app_port: 8081
+    jar_name: spring-petclinic.jar
+
+  tasks:
+    - name: Create petclinic user
+      user:
+        name: "{{ app_user }}"
+        system: yes
+        create_home: no
+        shell: /usr/sbin/nologin
+
+    - name: Create application directory and set ownership
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+
+    - name: Copy jar to VM and set ownership
+      copy:
+        src: "../target/{{ jar_name }}"
+        dest: "{{ app_dir }}/{{ jar_name }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+      notify:
+        - restart petclinic
+
+    - name: Create systemd service for running Petclinic app
+      copy:
+        dest: /etc/systemd/system/petclinic.service
+        content: |
+          [Unit]
+          Description=Spring Petclinic App
+          After=network.target
+
+          [Service]
+          Type=simple
+          User={{ app_user }}
+          ExecStart=/usr/bin/java -jar {{ app_dir }}/{{ jar_name }}
+          Restart=on-failure
+          Environment=SERVER_PORT={{ app_port }}
+
+          [Install]
+          WantedBy=multi-user.target
+      notify:
+        - daemon reload
+        - restart petclinic
+
+  handlers:
+    - name: daemon reload
+      systemd:
+        daemon_reload: yes
+
+    - name: restart petclinic
+      systemd:
+        name: petclinic
+        state: restarted
+        enabled: yes
