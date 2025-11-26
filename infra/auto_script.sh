@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ADMIN_PASSWORD="${ADMIN_PASSWORD:-""}"
+JENKINS_ADMIN_PASSWORD="${JENKINS_ADMIN_PASSWORD:-""}"
 SONAR_TOKEN="${SONAR_TOKEN:-""}"
-GIT_REPO_URL="${GIT_REPO_URL:-https://github.com/snavare-andrew/spring-petclinic-devops.git}"
 ZAP_API_KEY="${ZAP_API_KEY:-""}"
 
-export ADMIN_PASSWORD SONAR_TOKEN GIT_REPO_URL ZAP_API_KEY
+export JENKINS_ADMIN_PASSWORD SONAR_TOKEN ZAP_API_KEY
 
 echo "Building and starting containers."
 cd spring-petclinic/infra
