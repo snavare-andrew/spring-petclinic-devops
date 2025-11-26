@@ -31,11 +31,6 @@ credentials:
         credentials:
           - string:
               scope: GLOBAL
-              id: "sonar-token"
-              description: "SonarQube token"
-              secret: "${SONAR_TOKEN}"
-          - string:
-              scope: GLOBAL
               id: "zap-api-key"
               description: "OWASP ZAP API key"
               secret: "${ZAP_API_KEY}"
