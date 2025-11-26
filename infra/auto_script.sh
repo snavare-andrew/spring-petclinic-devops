@@ -12,7 +12,7 @@ cd spring-petclinic/infra
 docker compose build
 docker compose up -d
 
-echo "Up production VM with Vagrant."
+echo "Up staging and production VMs with Vagrant."
 vagrant up
 
 echo
