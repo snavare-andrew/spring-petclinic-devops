@@ -1,0 +1,175 @@
+pipeline {
+  agent any
+
+  environment {
+    ZAP_URL    = 'http://zap:8090'
+    STAGE_URL  = 'http://192.168.56.201:8081'
+    PROD_URL   = 'http://192.168.56.200:8081'
+  }
+
+  triggers {
+    pollSCM('H/5 * * * *')
+  }
+
+  options {
+    skipDefaultCheckout()
+    timestamps()
+  }
+
+  stages {
+
+    stage('Checkout') {
+     steps {
+       checkout scm
+     }
+    }
+
+    stage('Build') {
+      steps {
+        sh 'mvn clean test'
+      }
+      post {
+        always {
+          junit 'target/surefire-reports/*.xml'
+          archiveArtifacts artifacts: 'target/surefire-reports/*.xml', fingerprint: true, allowEmptyArchive: true
+        }
+      }
+    }
+
+    stage('Static Analysis - SonarQube') {
+      steps {
+        withSonarQubeEnv('sonarqube') {
+          withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+            sh '''
+              mvn sonar:sonar -Dsonar.projectKey=spring-petclinic -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN
+            '''
+          }
+        }
+      }
+    }
+
+    stage('Package') {
+      steps {
+        sh '''
+          mvn -DskipTests package
+          cp target/*.jar target/spring-petclinic.jar
+        '''
+        archiveArtifacts artifacts: 'target/spring-petclinic.jar', fingerprint: true
+      }
+    }
+
+    stage('Staging Deployment') {
+      steps {
+        dir('infra') {
+          sh '''
+            export ANSIBLE_LOG_PATH=../ansible-staging.log
+
+            ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit staging
+          '''
+        }
+      }
+      post {
+        always {
+            archiveArtifacts artifacts: 'ansible-staging.log', allowEmptyArchive: true
+        }
+      }
+    }
+
+    stage('Security Analysis - OWASP ZAP') {
+      steps {
+        withCredentials([string(credentialsId: 'zap-api-key', variable: 'ZAP_API_KEY')]) {
+            sh '''
+              set -e
+
+              echo "Checking staging VM app is reachable: ${STAGE_URL}"
+              if ! curl -sSf "${STAGE_URL}"; then
+                echo "ERROR: Staging target ${STAGE_URL} not reachable from Jenkins container."
+                exit 1
+              fi
+
+              echo "Checking ZAP readiness"
+              for i in $(seq 1 24); do
+                if curl -sS "${ZAP_URL}/JSON/core/view/version/"; then
+                  echo "ZAP is up"
+                  ZAP_STATUS=1
+                  break
+                fi
+                echo "WARNING: ZAP not ready yet, rechecking in 5 seconds."
+                sleep 5
+              done
+
+              if [ -z "$ZAP_STATUS" ]; then
+                echo "ERROR: ZAP container is not responding."
+                exit 1
+              fi
+
+              echo "Starting ZAP Spider"
+              SPIDER_RESP=$(curl -s "${ZAP_URL}/JSON/spider/action/scan/?apikey=${ZAP_API_KEY}&url=${STAGE_URL}&maxChildren=0")
+              SPIDER_ID=$(echo "$SPIDER_RESP" | jq -r '.scan')
+              echo "Spider scan id: ${SPIDER_ID}"
+
+              while true; do
+                STATUS=$(curl -s "${ZAP_URL}/JSON/spider/view/status/?apikey=${ZAP_API_KEY}&scanId=${SPIDER_ID}" | jq -r '.status')
+                echo "Spider progress: ${STATUS}%"
+                if [ "$STATUS" = "100" ]; then
+                    break
+                fi
+                sleep 5
+              done
+
+              echo "Starting ZAP Active Scan"
+              ASCAN_RESP=$(curl -s "${ZAP_URL}/JSON/ascan/action/scan/?apikey=${ZAP_API_KEY}&url=${STAGE_URL}&recurse=true&inScopeOnly=false")
+              ASCAN_ID=$(echo "$ASCAN_RESP" | jq -r '.scan')
+              echo "Active scan id: ${ASCAN_ID}"
+
+              while true; do
+                ASTATUS=$(curl -s "${ZAP_URL}/JSON/ascan/view/status/?apikey=${ZAP_API_KEY}&scanId=${ASCAN_ID}" | jq -r '.status')
+                echo "Active scan progress: ${ASTATUS}%"
+                if [ "$ASTATUS" = "100" ]; then
+                    break
+                fi
+                sleep 10
+              done
+
+              echo "Fetching ZAP HTML report."
+              curl -s "${ZAP_URL}/OTHER/core/other/htmlreport/?apikey=${ZAP_API_KEY}" -o zap-report.html
+            '''
+        }
+      }
+      post {
+        always {
+            archiveArtifacts artifacts: 'zap-report.html', allowEmptyArchive: true
+        }
+      }
+    }
+
+    stage('Production Deployment') {
+      steps {
+        dir('infra') {
+          sh '''
+            export ANSIBLE_LOG_PATH=../ansible-prod.log
+            ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit prod
+          '''
+        }
+      }
+      post {
+        always {
+            archiveArtifacts artifacts: 'ansible-prod.log', allowEmptyArchive: true
+        }
+      }
+    }
+  }
+
+  post {
+    always {
+      publishHTML(target: [
+        allowMissing: true,
+        alwaysLinkToLastBuild: true,
+        keepAll: true,
+        reportDir: '.',
+        reportFiles: 'zap-report.html',
+        reportName: 'OWASP ZAP Report'
+      ])
+    }
+  }
+}
