@@ -5,9 +5,6 @@ set -euo pipefail
 
 sudo apt-get update
 sudo apt-get install -y openjdk-21-jre-headless
-sudo useradd petclinic || true
-sudo mkdir -p /opt/petclinic
-sudo chown petclinic:petclinic /opt/petclinic
 
 # Allow only SSH, disables password login
 sudo sed -i 's/^#\?PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
