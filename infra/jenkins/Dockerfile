@@ -1,11 +1,15 @@
-FROM jenkins/jenkins:lts-jdk17
+FROM jenkins/jenkins:lts-jdk21
 
 USER root
 RUN apt-get update && \
-    apt-get install -y docker.io git curl unzip && \
+    apt-get install -y docker.io maven ansible git curl jq && \
     rm -rf /var/lib/apt/lists/*
 
-USER jenkins
+COPY --chown=jenkins:jenkins jenkins/plugins.txt /usr/share/jenkins/plugins.txt
 
-COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
-RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/ref/plugins.txt
+RUN jenkins-plugin-cli --plugin-file /usr/share/jenkins/plugins.txt \
+ && chown -R jenkins:jenkins /var/jenkins_home
+
+ENV JENKINS_HOME=/var/jenkins_home
+
+USER jenkins
