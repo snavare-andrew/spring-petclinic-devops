@@ -40,6 +40,20 @@ services:
     depends_on:
       - prometheus
 
+  zap:
+    image: owasp/zap2docker-stable
+    container_name: owasp-zap
+    restart: unless-stopped
+    command: >
+      zap.sh -daemon -port 8090 -host 0.0.0.0 -config api.key=${ZAP_API_KEY}
+    environment:
+      - ZAP_API_KEY=${ZAP_API_KEY}
+    ports:
+      - "8090:8090"
+    networks:
+      - devsecops-network
+      
+
 networks:
   devsecops-network:
     driver: bridge
