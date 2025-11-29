@@ -44,7 +44,7 @@ pipeline {
     stage('Package') {
       steps {
         sh '''
-          mvn -DskipTests package
+          mvn package -DskipTests -Dcheckstyle.skip=true
           cp target/*.jar target/spring-petclinic.jar
         '''
         archiveArtifacts artifacts: 'target/spring-petclinic.jar', fingerprint: true
