@@ -1,0 +1,80 @@
+services:
+  jenkins:
+    build: jenkins/jenkins:lts-jdk17
+    container_name: jenkins
+    networks:
+      - devsecops-network
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+
+  Sonarqube:  
+    image: sonarqube:community
+    container_name: sonarqube
+    networks:
+      - devsecops-network
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    networks:
+      - devsecops-network
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    depends_on:
+      - jenkins
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    networks:
+      - devsecops-network
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+
+  zap:
+    image: zaproxy/zap-stable
+    container_name: owasp-zap
+    restart: unless-stopped
+    command: >
+      zap.sh -daemon -port 8090 -host 0.0.0.0 -config api.key=${ZAP_API_KEY} -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+    environment:
+      - ZAP_API_KEY=${ZAP_API_KEY}
+    ports:
+      - "8090:8090"
+    networks:
+      - devsecops-network
+      
+
+networks:
+  devsecops-network:
+    driver: bridge
+
+volumes:
+  jenkins_home:
+  grafana_data:
+  sonarqube_data:
+  sonarqube_logs:
+  sonarqube_extensions:
