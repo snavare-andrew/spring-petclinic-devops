@@ -1,6 +1,8 @@
 services:
   jenkins:
-    build: jenkins/jenkins:lts-jdk17
+    build:
+      context: .
+      dockerfile: jenkins/Dockerfile
     container_name: jenkins
     networks:
       - devsecops-network
@@ -9,7 +11,15 @@ services:
       - "50000:50000"
     volumes:
       - jenkins_home:/var/jenkins_home
-
+      - ./jenkins/jenkins.yaml:/var/jenkins_home/jenkins.yaml
+      - ..:/workspace-source:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - JENKINS_HOME=/var/jenkins_home
+      - CASC_JENKINS_CONFIG=/var/jenkins_home/jenkins.yaml
+      - JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD}
+      - SONAR_TOKEN=${SONAR_TOKEN}
+      - ZAP_API_KEY=${ZAP_API_KEY}
   Sonarqube:  
     image: sonarqube:community
     container_name: sonarqube
