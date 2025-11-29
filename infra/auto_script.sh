@@ -15,9 +15,7 @@ ZAP_API_KEY="${ZAP_API_KEY:-"75de1195e318543b38c48682180e3480698a3973ad0488ee0e2
 export JENKINS_ADMIN_PASSWORD ZAP_API_KEY
 
 echo "Building and starting containers."
-cd spring-petclinic/infra
-docker compose build
-docker compose up -d
+docker compose up -d Sonarqube
 
 # Checking if SonarQube container is up and requesting for new token via API endpoint
 until curl -sf "http://localhost:9000/api/system/status" | grep -q '"status":"UP"'; do
@@ -25,7 +23,9 @@ until curl -sf "http://localhost:9000/api/system/status" | grep -q '"status":"UP
   sleep 5
 done
 
+curl -s -u "admin:admin" -X POST "http://localhost:9000/api/user_tokens/revoke?name=jenkins" || true
 SONAR_TOKEN=$(curl -s -u "admin:admin" -X POST "http://localhost:9000/api/user_tokens/generate?name=jenkins" | jq -r '.token')
+
 
 if [ -z "${SONAR_TOKEN}" ] || [ "${SONAR_TOKEN}" = "null" ]; then
   echo "ERROR: Failed to generate SonarQube token"
@@ -34,31 +34,13 @@ fi
 
 echo "Token generation successful."
 
-# Checking if Jenkins container is up
-until curl -sf "http://localhost:8080/login"; do
-  echo "WARNING: Jenkins not ready yet."
-  sleep 5
-done
+export SONAR_TOKEN
+export JENKINS_ADMIN_PASSWORD
+export ZAP_API_KEY
 
-# Getting CSRF Token to send modification requests to Jenkins
-CRUMB_JSON=$(curl -s -u "jenkins_admin:${JENKINS_ADMIN_PASSWORD}" "http://localhost:8080/crumbIssuer/api/json")
-CRUMB_FIELD=$(echo "${CRUMB_JSON}" | jq -r '.crumbRequestField')
-CRUMB=$(echo "${CRUMB_JSON}" | jq -r '.crumb')
-
-# Inserting new SonarQube credentials into Jenkins via API endpoint
-curl -s -X POST "http://localhost:8080/credentials/store/system/domain/_/createCredentials" \
-  -u "jenkins_admin:${JENKINS_ADMIN_PASSWORD}" \
-  -H "${CRUMB_FIELD}: ${CRUMB}" \
-  --data-urlencode "json={
-    \"\": \"0\",
-    \"credentials\": {
-      \"scope\": \"GLOBAL\",
-      \"id\": \"sonar-token\",
-      \"description\": \"SonarQube token\",
-      \"secret\": \"${SONAR_TOKEN}\",
-      \"\$class\": \"org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl\"
-    }
-  }"
+echo "Building and starting all services."
+docker compose build --no-cache
+docker compose up -d
 
 echo "Sonar credential 'sonar-token' created and added to Jenkins."
 echo

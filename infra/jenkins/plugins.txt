@@ -1,11 +1,11 @@
-blueocean:1.27.25
-git:5.8.0
-workflow-aggregator:608.v67378e9d3db_1
-pipeline-utility-steps: 2.20.0
-prometheus: 819.v50953a_c560dd
-sonar:2.18
-ansicolor: 1.0.6
-github-branch-source: 1925.v62fb_7ffb_08ce
-job-dsl: 1.93
-configuration-as-code: 2006.v001a_2ca_6b_574
-htmlpublisher: 427
+blueocean
+git
+workflow-aggregator
+pipeline-utility-steps
+prometheus
+sonar
+ansicolor
+github-branch-source
+job-dsl
+configuration-as-code
+htmlpublisher
