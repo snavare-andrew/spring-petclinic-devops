@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "NOTE: This script requires the curl and jq packages to be installed on the host machine."
-echo "NOTE: This is to allow automatic SonarQube token creation and insertion into Jenkins."
+echo "NOTE: This script requires Vagrant, Virtualbox, curl and jq packages to be installed on the host machine before running this script."
 
-echo "WARNING: It is expected that the default values provided in the script will NOT TO BE USED and is present only as a base and to allow ease of use."
+echo "WARNING: It is expected that the default values for JENKINS_ADMIN_PASSWORD and ZAP_API_KEY provided in the script will NOT TO BE USED and is present only as a base and to allow ease of use."
 echo "WARNING: To replace with new values, set the respective variable names as ENV variables locally as the script will try to read them before defaulting."
-echo "WARNING: Example to set a new value - export JENKINS_ADMIN_PASSWORD=your_password"
+echo "WARNING: Example to set a new value via terminal/cmd, run - export JENKINS_ADMIN_PASSWORD=your_password"
 echo
 
 JENKINS_ADMIN_PASSWORD="${JENKINS_ADMIN_PASSWORD:-"devops@2025"}"
@@ -46,10 +45,8 @@ export VAGRANT_STAGE_KEY
 export VAGRANT_PROD_KEY
 
 echo "Building and starting all services."
-docker compose build --no-cache
+docker compose build
 docker compose up -d
-
-echo "Sonar credential 'sonar-token' created and added to Jenkins."
 
 # Removing ENV variables used for security
 unset SONAR_TOKEN
