@@ -67,11 +67,13 @@ services:
       - prometheus
 
   zap:
-    image: zaproxy/zap-stable
+    build:
+      context: .
+      dockerfile: zap/Dockerfile
     container_name: owasp-zap
     restart: unless-stopped
     command: >
-      zap.sh -daemon -port 8090 -host 0.0.0.0 -config api.key=${ZAP_API_KEY} -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true
+      zap.sh -daemon -port 8090 -host 0.0.0.0 -config api.key=${ZAP_API_KEY} -config api.addrs.addr.name=.* -config api.addrs.addr.regex=true -config rules.domxss.browserid=chrome-headless
     environment:
       - ZAP_API_KEY=${ZAP_API_KEY}
       - ZAP_PORT=8090
