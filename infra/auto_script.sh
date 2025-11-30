@@ -62,8 +62,8 @@ echo
 echo "===============================================================++"
 echo "Environment is starting up."
 echo
-echo " Jenkins:    http://localhost:8080 (User Id: jenkins_admin)"
-echo " SonarQube:  http://localhost:9000"
+echo " Jenkins:    http://localhost:8080 (Username: jenkins_admin, Password: <As set earlier>)"
+echo " SonarQube:  http://localhost:9000 (Defaults credentials for initial sign on. Username: admin, Password: admin)"
 echo " Grafana:    http://localhost:3000"
 echo " Prometheus: http://localhost:9090"
 echo " ZAP API:    http://localhost:8090"
