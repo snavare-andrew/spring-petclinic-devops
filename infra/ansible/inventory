@@ -1,13 +1,5 @@
 [staging]
-petclinic-stage \
-  ansible_host=192.168.56.201 \
-  ansible_user=vagrant \
-  ansible_ssh_private_key_file=.vagrant/machines/petclinic-stage/virtualbox/private_key \
-  ansible_python_interpreter=/usr/bin/python3
+petclinic-stage ansible_host=192.168.56.201 ansible_user=vagrant ansible_ssh_private_key_file=.vagrant/machines/petclinic-stage/virtualbox/private_key ansible_python_interpreter=/usr/bin/python3
 
 [prod]
-petclinic-prod \
-  ansible_host=192.168.56.200 \
-  ansible_user=vagrant \
-  ansible_ssh_private_key_file=.vagrant/machines/petclinic-prod/virtualbox/private_key \
-  ansible_python_interpreter=/usr/bin/python3
+petclinic-prod ansible_host=192.168.56.200 ansible_user=vagrant ansible_ssh_private_key_file=.vagrant/machines/petclinic-prod/virtualbox/private_key ansible_python_interpreter=/usr/bin/python3
