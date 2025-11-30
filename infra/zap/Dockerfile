@@ -1,4 +1,4 @@
-FROM owasp/zap2docker-stable
+FROM zaproxy/zap-stable
 
 RUN apt-get update && \
     apt-get install -y chromium chromium-driver && \
