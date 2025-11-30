@@ -25,7 +25,7 @@
 
     - name: Copy jar to VM and set ownership
       copy:
-        src: "../target/{{ jar_name }}"
+        src: "../../target/{{ jar_name }}"
         dest: "{{ app_dir }}/{{ jar_name }}"
         owner: "{{ app_user }}"
         group: "{{ app_user }}"
