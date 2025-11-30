@@ -19,7 +19,7 @@ unclassified:
   sonarGlobalConfiguration:
     installations:
       - name: "sonarqube"
-        serverUrl: "http://sonarqube:9000"
+        serverUrl: "http://host.docker.internal:9000"
         credentialsId: "sonar-token"
 
 credentials:
