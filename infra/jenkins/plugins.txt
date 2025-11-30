@@ -9,3 +9,4 @@ github-branch-source
 job-dsl
 configuration-as-code
 htmlpublisher
+ssh-agent
