@@ -34,19 +34,22 @@ fi
 
 echo "Token generation successful."
 
+echo "Up staging and production VMs with Vagrant."
+vagrant up
+VAGRANT_STAGE_KEY="$(cat .vagrant/machines/petclinic-stage/virtualbox/private_key)"
+VAGRANT_PROD_KEY="$(cat .vagrant/machines/petclinic-prod/virtualbox/private_key)"
+
 export SONAR_TOKEN
 export JENKINS_ADMIN_PASSWORD
 export ZAP_API_KEY
+export VAGRANT_STAGE_KEY
+export VAGRANT_PROD_KEY
 
 echo "Building and starting all services."
 docker compose build --no-cache
 docker compose up -d
 
 echo "Sonar credential 'sonar-token' created and added to Jenkins."
-echo
-
-echo "Up staging and production VMs with Vagrant."
-vagrant up
 
 echo
 echo "===============================================================++"

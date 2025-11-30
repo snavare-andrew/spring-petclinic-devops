@@ -53,14 +53,16 @@ pipeline {
 
     stage('Staging Deployment') {
       steps {
-        dir('infra') {
-          sh '''
-            mkdir -p ~/.ssh
-            ssh-keyscan -H 192.168.56.201 >> ~/.ssh/known_hosts
-            export ANSIBLE_LOG_PATH=../ansible-staging.log
+        sshagent(credentials: ['petclinic-stage-vagrant-key']) {
+            dir('infra') {
+              sh '''
+                mkdir -p ~/.ssh
+                ssh-keyscan -H 192.168.56.201 >> ~/.ssh/known_hosts
+                export ANSIBLE_LOG_PATH=../ansible-staging.log
 
-            ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit staging
-          '''
+                ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit staging
+              '''
+            }
         }
       }
       post {
@@ -140,13 +142,15 @@ pipeline {
 
     stage('Production Deployment') {
       steps {
-        dir('infra') {
-          sh '''
-            mkdir -p ~/.ssh
-            ssh-keyscan -H 192.168.56.200 >> ~/.ssh/known_hosts
-            export ANSIBLE_LOG_PATH=../ansible-prod.log
-            ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit prod
-          '''
+        sshagent(credentials: ['petclinic-prod-vagrant-key']) {
+            dir('infra') {
+              sh '''
+                mkdir -p ~/.ssh
+                ssh-keyscan -H 192.168.56.200 >> ~/.ssh/known_hosts
+                export ANSIBLE_LOG_PATH=../ansible-prod.log
+                ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit prod
+              '''
+            }
         }
       }
       post {

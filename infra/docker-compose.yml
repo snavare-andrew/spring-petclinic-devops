@@ -20,6 +20,8 @@ services:
       - JENKINS_ADMIN_PASSWORD=${JENKINS_ADMIN_PASSWORD}
       - SONAR_TOKEN=${SONAR_TOKEN}
       - ZAP_API_KEY=${ZAP_API_KEY}
+      - VAGRANT_STAGE_KEY=${VAGRANT_STAGE_KEY}
+      - VAGRANT_PROD_KEY=${VAGRANT_PROD_KEY}
   Sonarqube:  
     image: sonarqube:community
     container_name: sonarqube
