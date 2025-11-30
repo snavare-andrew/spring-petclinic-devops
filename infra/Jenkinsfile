@@ -55,6 +55,7 @@ pipeline {
       steps {
         dir('infra') {
           sh '''
+            ssh-keyscan -H petclinic-stage >> ~/.ssh/known_hosts
             export ANSIBLE_LOG_PATH=../ansible-staging.log
 
             ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit staging
@@ -140,6 +141,7 @@ pipeline {
       steps {
         dir('infra') {
           sh '''
+            ssh-keyscan -H petclinic-prod >> ~/.ssh/known_hosts
             export ANSIBLE_LOG_PATH=../ansible-prod.log
             ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit prod
           '''
