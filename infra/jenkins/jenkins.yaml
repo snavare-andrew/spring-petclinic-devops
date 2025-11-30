@@ -37,23 +37,19 @@ credentials:
 
 jobs:
   - script: >
-      multibranchPipelineJob('spring-petclinic-pipeline') {
+      pipelineJob('spring-petclinic-pipeline') {
         description('Jenkins pipeline for Spring Petclinic')
-        branchSources {
-          branchSource {
-            source {
+        definition {
+          cpsScm {
+            scm {
               git {
-                id('spring-petclinic-git')
-                remote('https://github.com/snavare-andrew/spring-petclinic-devops.git')
-                credentialsId(null)
+                remote {
+                  url('https://github.com/snavare-andrew/spring-petclinic-devops.git')
+                }
+                branches('*/main')
               }
             }
-          }
-        }
-        factory {
-          workflowBranchProjectFactory {
             scriptPath('infra/Jenkinsfile')
           }
         }
       }
-      
