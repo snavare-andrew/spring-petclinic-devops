@@ -56,7 +56,7 @@ pipeline {
         dir('infra') {
           sh '''
             mkdir -p ~/.ssh
-            ssh-keyscan -H petclinic-stage >> ~/.ssh/known_hosts
+            ssh-keyscan -H 192.168.56.201 >> ~/.ssh/known_hosts
             export ANSIBLE_LOG_PATH=../ansible-staging.log
 
             ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit staging
@@ -143,7 +143,7 @@ pipeline {
         dir('infra') {
           sh '''
             mkdir -p ~/.ssh
-            ssh-keyscan -H petclinic-prod >> ~/.ssh/known_hosts
+            ssh-keyscan -H 192.168.56.200 >> ~/.ssh/known_hosts
             export ANSIBLE_LOG_PATH=../ansible-prod.log
             ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit prod
           '''
