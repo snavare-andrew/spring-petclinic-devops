@@ -14,7 +14,7 @@ ZAP_API_KEY="${ZAP_API_KEY:-"75de1195e318543b38c48682180e3480698a3973ad0488ee0e2
 export JENKINS_ADMIN_PASSWORD ZAP_API_KEY
 
 echo "Building and starting containers."
-docker compose up -d Sonarqube
+docker compose up -d sonarqube
 
 # Checking if SonarQube container is up and requesting for new token via API endpoint
 until curl -sf "http://localhost:9000/api/system/status" | grep -q '"status":"UP"'; do
