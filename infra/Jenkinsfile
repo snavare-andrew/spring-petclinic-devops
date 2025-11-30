@@ -78,11 +78,21 @@ pipeline {
             sh '''
               set -e
 
-              echo "Checking staging VM app is reachable: ${STAGE_URL}"
-              if ! curl -sSf "${STAGE_URL}"; then
-                echo "ERROR: Staging target ${STAGE_URL} not reachable from Jenkins container."
-                exit 1
-              fi
+                echo "Waiting for staging VM app to become reachable: ${STAGE_URL}"
+                for i in $(seq 1 24); do
+                  if curl -sSf "${STAGE_URL}"; then
+                    echo "Staging app is up."
+                    break
+                  fi
+                  echo "WARNING: Staging app not ready yet, retrying in 5 seconds. ($i/24)"
+                  sleep 5
+                done
+
+                if ! curl -sSf "${STAGE_URL}"; then
+                  echo "ERROR: Staging target ${STAGE_URL} still not reachable after waiting."
+                  exit 1
+                fi
+
 
               echo "Checking ZAP readiness"
               for i in $(seq 1 24); do
