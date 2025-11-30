@@ -51,6 +51,13 @@ docker compose up -d
 
 echo "Sonar credential 'sonar-token' created and added to Jenkins."
 
+# Removing ENV variables used for security
+unset SONAR_TOKEN
+unset JENKINS_ADMIN_PASSWORD
+unset ZAP_API_KEY
+unset VAGRANT_STAGE_KEY
+unset VAGRANT_PROD_KEY
+
 echo
 echo "===============================================================++"
 echo "Environment is starting up."
