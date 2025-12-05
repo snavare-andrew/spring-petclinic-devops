@@ -26,17 +26,17 @@
       "id": 1,
       "targets": [
         {
-          "expr": "jenkins_builds_success_total",
-          "legendFormat": "Successful Builds",
+          "expr": "default_jenkins_builds_success_build_count_total",
+          "legendFormat": "{{jenkins_job}} - Success",
           "refId": "A"
         },
         {
-          "expr": "jenkins_builds_failed_total",
-          "legendFormat": "Failed Builds",
+          "expr": "default_jenkins_builds_total_build_count_total - default_jenkins_builds_success_build_count_total",
+          "legendFormat": "{{jenkins_job}} - Failed",
           "refId": "B"
         }
       ],
-      "title": "Jenkins Build Status",
+      "title": "Jenkins Build Counts",
       "type": "timeseries"
     },
     {
@@ -73,7 +73,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "s"
+          "unit": "ms"
         }
       },
       "gridPos": {
@@ -85,17 +85,12 @@
       "id": 3,
       "targets": [
         {
-          "expr": "jenkins_builds_duration_milliseconds_summary{quantile=\"0.5\"} / 1000",
-          "legendFormat": "Median Build Duration",
+          "expr": "default_jenkins_builds_last_build_duration_milliseconds",
+          "legendFormat": "{{jenkins_job}}",
           "refId": "A"
-        },
-        {
-          "expr": "jenkins_builds_duration_milliseconds_summary{quantile=\"0.95\"} / 1000",
-          "legendFormat": "95th Percentile",
-          "refId": "B"
         }
       ],
-      "title": "Jenkins Build Duration",
+      "title": "Jenkins Last Build Duration",
       "type": "timeseries"
     },
     {
@@ -125,6 +120,11 @@
           "expr": "jenkins_executor_in_use_value",
           "legendFormat": "Busy Executors",
           "refId": "B"
+        },
+        {
+          "expr": "jenkins_executor_free_value",
+          "legendFormat": "Free Executors",
+          "refId": "C"
         }
       ],
       "title": "Jenkins Executors",
@@ -142,24 +142,51 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
+        "w": 12,
         "x": 0,
         "y": 16
       },
       "id": 5,
       "targets": [
         {
-          "expr": "jenkins_vm_memory_heap_used",
+          "expr": "jvm_memory_bytes_used{area=\"heap\"}",
           "legendFormat": "Heap Used",
           "refId": "A"
         },
         {
-          "expr": "jenkins_vm_memory_heap_max",
+          "expr": "jvm_memory_bytes_max{area=\"heap\"}",
           "legendFormat": "Heap Max",
           "refId": "B"
         }
       ],
-      "title": "Jenkins JVM Memory",
+      "title": "Jenkins JVM Heap Memory",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 6,
+      "targets": [
+        {
+          "expr": "default_jenkins_builds_health_score",
+          "legendFormat": "{{jenkins_job}} - Health Score",
+          "refId": "A"
+        }
+      ],
+      "title": "Jenkins Job Health Score",
       "type": "timeseries"
     }
   ],
