@@ -82,7 +82,7 @@ pipeline {
         withCredentials([string(credentialsId: 'zap-api-key', variable: 'ZAP_API_KEY')]) {
             sh '''
               set -e
-
+                sleep 5
                 echo "Waiting for staging VM app to become reachable: ${STAGE_URL}"
                 for i in $(seq 1 24); do
                   if curl -sSf "${STAGE_URL}"; then
