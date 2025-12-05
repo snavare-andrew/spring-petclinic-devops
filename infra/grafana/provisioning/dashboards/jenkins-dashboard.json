@@ -1,8 +1,8 @@
 {
   "id": null,
-  "uid": "basic-monitoring",
-  "title": "Basic System Monitoring",
-  "tags": ["system"],
+  "uid": "jenkins-monitoring",
+  "title": "Jenkins Monitoring",
+  "tags": ["jenkins"],
   "timezone": "browser",
   "schemaVersion": 27,
   "version": 0,
@@ -14,9 +14,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100
+          "unit": "short"
         }
       },
       "gridPos": {
@@ -28,12 +26,17 @@
       "id": 1,
       "targets": [
         {
-          "expr": "100 - (avg(irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
-          "legendFormat": "CPU Usage",
+          "expr": "jenkins_builds_success_total",
+          "legendFormat": "Successful Builds",
           "refId": "A"
+        },
+        {
+          "expr": "jenkins_builds_failed_total",
+          "legendFormat": "Failed Builds",
+          "refId": "B"
         }
       ],
-      "title": "CPU Usage",
+      "title": "Jenkins Build Status",
       "type": "timeseries"
     },
     {
@@ -43,9 +46,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
-          "min": 0,
-          "max": 100
+          "unit": "short"
         }
       },
       "gridPos": {
@@ -57,12 +58,12 @@
       "id": 2,
       "targets": [
         {
-          "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
-          "legendFormat": "Memory Usage",
+          "expr": "jenkins_queue_size_value",
+          "legendFormat": "Queue Size",
           "refId": "A"
         }
       ],
-      "title": "Memory Usage",
+      "title": "Jenkins Queue Size",
       "type": "timeseries"
     },
     {
@@ -72,8 +73,7 @@
       },
       "fieldConfig": {
         "defaults": {
-          "unit": "bytes",
-          "min": 0
+          "unit": "s"
         }
       },
       "gridPos": {
@@ -85,17 +85,17 @@
       "id": 3,
       "targets": [
         {
-          "expr": "rate(node_network_receive_bytes_total[5m])",
-          "legendFormat": "{{device}} - RX",
+          "expr": "jenkins_builds_duration_milliseconds_summary{quantile=\"0.5\"} / 1000",
+          "legendFormat": "Median Build Duration",
           "refId": "A"
         },
         {
-          "expr": "rate(node_network_transmit_bytes_total[5m])",
-          "legendFormat": "{{device}} - TX",
+          "expr": "jenkins_builds_duration_milliseconds_summary{quantile=\"0.95\"} / 1000",
+          "legendFormat": "95th Percentile",
           "refId": "B"
         }
       ],
-      "title": "Network Traffic",
+      "title": "Jenkins Build Duration",
       "type": "timeseries"
     },
     {
@@ -117,12 +117,49 @@
       "id": 4,
       "targets": [
         {
-          "expr": "up",
-          "legendFormat": "{{job}} - {{instance}}",
+          "expr": "jenkins_executor_count_value",
+          "legendFormat": "Total Executors",
           "refId": "A"
+        },
+        {
+          "expr": "jenkins_executor_in_use_value",
+          "legendFormat": "Busy Executors",
+          "refId": "B"
         }
       ],
-      "title": "Service Status (Up/Down)",
+      "title": "Jenkins Executors",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 5,
+      "targets": [
+        {
+          "expr": "jenkins_vm_memory_heap_used",
+          "legendFormat": "Heap Used",
+          "refId": "A"
+        },
+        {
+          "expr": "jenkins_vm_memory_heap_max",
+          "legendFormat": "Heap Max",
+          "refId": "B"
+        }
+      ],
+      "title": "Jenkins JVM Memory",
       "type": "timeseries"
     }
   ],
