@@ -77,7 +77,7 @@ pipeline {
       }
     }
 
-    stage('Security Analysis - OWASP ZAP') {
+    stage('Security Analysis - ZAP') {
       steps {
         withCredentials([string(credentialsId: 'zap-api-key', variable: 'ZAP_API_KEY')]) {
             sh '''
