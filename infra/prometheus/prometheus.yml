@@ -13,3 +13,8 @@ scrape_configs:
     metrics_path: '/prometheus'
     static_configs:
       - targets: ['jenkins:8080']
+
+  # Basic node metrics
+  - job_name: 'node'
+    static_configs:
+      - targets: ['node-exporter:9100']
