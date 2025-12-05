@@ -1,36 +1,112 @@
 {
     "dashboard": {
       "id": null,
+      "uid": "basic-monitoring",
       "title": "Basic System Monitoring",
       "tags": ["student", "basic"],
       "timezone": "browser",
+      "schemaVersion": 27,
+      "version": 1,
       "panels": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            }
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+          },
           "id": 1,
-          "title": "CPU Usage",
-          "type": "graph",
           "targets": [
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
               "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
-              "legendFormat": "CPU Usage %"
+              "legendFormat": "CPU Usage %",
+              "refId": "A"
             }
           ],
-          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+          "title": "CPU Usage",
+          "type": "timeseries"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "${DS_PROMETHEUS}"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "min": 0,
+              "max": 100
+            }
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
+          },
           "id": 2,
-          "title": "Memory Usage",
-          "type": "graph",
           "targets": [
             {
+              "datasource": {
+                "type": "prometheus",
+                "uid": "${DS_PROMETHEUS}"
+              },
               "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
-              "legendFormat": "Memory Usage %"
+              "legendFormat": "Memory Usage %",
+              "refId": "A"
             }
           ],
-          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+          "title": "Memory Usage",
+          "type": "timeseries"
         }
       ],
-      "time": {"from": "now-30m", "to": "now"},
-      "refresh": "10s"
+      "time": {
+        "from": "now-30m",
+        "to": "now"
+      },
+      "refresh": "10s",
+      "templating": {
+        "list": []
+      },
+      "annotations": {
+        "list": []
+      }
+    },
+    "meta": {
+      "type": "db",
+      "canSave": true,
+      "canEdit": true,
+      "canAdmin": true,
+      "canStar": true,
+      "slug": "basic-system-monitoring",
+      "url": "/d/basic-monitoring/basic-system-monitoring",
+      "expires": "0001-01-01T00:00:00Z",
+      "created": "2024-01-01T00:00:00Z",
+      "updated": "2024-01-01T00:00:00Z",
+      "updatedBy": "admin",
+      "createdBy": "admin",
+      "version": 1,
+      "hasAcl": false,
+      "isFolder": false,
+      "folderId": 0,
+      "folderTitle": "General",
+      "folderUrl": "",
+      "provisioned": true,
+      "provisionedExternalId": "basic-dashboard.json"
     }
-}
+  }
