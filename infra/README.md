@@ -2,6 +2,12 @@
 
 Setup guide for Spring Petclinic DevOps pipeline with Jenkins, SonarQube, OWASP ZAP, Prometheus, and Grafana. The production and staging VMs are setup using Vagrant and deployed to via Ansible.
 
+
+## Team Members
+1. Karthik Chakkalakal (kchakkal@andrew.cmu.edu)
+2. Sarvesh Navare (snavare@andrew.cmu.edu)
+3. Srushti Venkatesh Reddy (srushtiv@cs.cmu.edu)
+
 ## Prerequisites
 
 ### Host Specifications
@@ -40,6 +46,47 @@ This same implementation was tested on a host with Windows 11 (x64 based) archit
 | OWASP ZAP | `zaproxy/zap-stable` | Security Testing |
 | Node Exporter | `prom/node-exporter:latest` | System Metrics |
 
+
+## File Structure
+
+All files related to infrastructure setup, deployment, monitoring, configurations as needed for the assignment are available in the "infra" folder.
+
+```text
+.
+├── Jenkinsfile
+├── README.md
+├── Vagrantfile
+├── ansible
+│   ├── deploy-to-vm.yml
+│   └── inventory
+├── auto_script.sh
+├── cleanup_script.sh
+├── docker-compose.yml
+├── grafana
+│   └── provisioning
+│       ├── dashboards
+│       │   ├── basic-dashboard.json
+│       │   ├── dashboards.yml
+│       │   └── jenkins-dashboard.json
+│       └── datasources
+│           └── datasources.yml
+├── jenkins
+│   ├── Dockerfile
+│   ├── init.groovy.d
+│   │   ├── config-vagrant-ssh.groovy
+│   │   └── configure-sonar.groovy
+│   ├── jenkins.yaml
+│   └── plugins.txt
+├── prod_vm_provision.sh
+├── prometheus
+│   └── prometheus.yml
+└── zap
+    └── Dockerfile
+
+10 directories, 20 files
+
+
+```
 ## Setup
 
 ### 1. Clone Repository
