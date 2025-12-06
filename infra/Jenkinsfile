@@ -63,6 +63,7 @@ pipeline {
               sh '''
                 mkdir -p ~/.ssh
                 ssh-keyscan -H 192.168.56.201 >> ~/.ssh/known_hosts
+                sleep 2
                 export ANSIBLE_LOG_PATH=../ansible-staging.log
 
                 ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit staging
@@ -82,7 +83,6 @@ pipeline {
         withCredentials([string(credentialsId: 'zap-api-key', variable: 'ZAP_API_KEY')]) {
             sh '''
               set -e
-                sleep 5
                 echo "Waiting for staging VM app to become reachable: ${STAGE_URL}"
                 for i in $(seq 1 24); do
                   if curl -sSf "${STAGE_URL}"; then
@@ -162,6 +162,7 @@ pipeline {
               sh '''
                 mkdir -p ~/.ssh
                 ssh-keyscan -H 192.168.56.200 >> ~/.ssh/known_hosts
+                sleep 2
                 export ANSIBLE_LOG_PATH=../ansible-prod.log
                 ansible-playbook -i ansible/inventory ansible/deploy-to-vm.yml --limit prod
               '''
