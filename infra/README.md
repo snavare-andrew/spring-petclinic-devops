@@ -156,11 +156,11 @@ More specifications are available as comments in the auto_script.sh file
 ## VM URLs
 
 ### Staging Environment
-- **URL**: http://192.168.56.201:8080
+- **URL**: http://192.168.56.201:8081
 - **VM**: petclinic-stage
 
 ### Production Environment  
-- **URL**: http://192.168.56.200:8080
+- **URL**: http://192.168.56.200:8081
 - **VM**: petclinic-prod
 
 Note: The IPs above are hardcoded to be used by Vagrant when setting up the VMs. Therefore, these IPs must be free and available on the host machine's private network.
