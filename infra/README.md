@@ -3,7 +3,7 @@
 Setup guide for Spring Petclinic DevOps pipeline with Jenkins, SonarQube, OWASP ZAP, Prometheus, and Grafana. The production and staging VMs are setup using Vagrant and deployed to via Ansible.
 
 
-## Team Members
+## Team - 4 Members
 1. Karthik Chakkalakal (kchakkal@andrew.cmu.edu)
 2. Sarvesh Navare (snavare@andrew.cmu.edu)
 3. Srushti Venkatesh Reddy (srushtiv@cs.cmu.edu)
